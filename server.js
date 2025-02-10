@@ -12,7 +12,7 @@ import addAttendance from './routes/attendanceRoutes.js';
 const app = express();
 const PORT = 5000;
 
-app.use(cors('https://testing.nikatby.in/HRMS'));
+app.use(cors('https://testing.nikatby.in'));
 app.use(express.json());
 app.use(cookieParser());
 
