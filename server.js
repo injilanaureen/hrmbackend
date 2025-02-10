@@ -8,7 +8,7 @@ import addUserRoutes from './routes/addUserRoutes1.js';
 import leaveRoutes from './routes/leaveRoutes.js';  
 import uploadDocumentRouter from './routes/uploadDocumentRouter.js';
 import tastBoxRouters from './routes/tastBoxRouters.js';
-
+import addAttendance from './routes/attendanceRoutes.js';
 const app = express();
 const PORT = 5000;
 
@@ -37,6 +37,7 @@ app.use('/api/adduser', addUserRoutes);
 app.use('/api/leave', leaveRoutes);
 app.use('/api/upload', uploadDocumentRouter);
 app.use('/api/tastbox', tastBoxRouters);
+app.use('/api/attendance', addAttendance);  // for attendance routes
 
 // Start server
 app.listen(PORT, () => {
