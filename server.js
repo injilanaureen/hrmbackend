@@ -9,10 +9,11 @@ import leaveRoutes from './routes/leaveRoutes.js';
 import uploadDocumentRouter from './routes/uploadDocumentRouter.js';
 import tastBoxRouters from './routes/tastBoxRouters.js';
 import addAttendance from './routes/attendanceRoutes.js';
+import addHoliday from './routes/holidayRouters.js';
 const app = express();
 const PORT = 5000;
 
-app.use(cors('https://testing.nikatby.in'));
+app.use(cors());
 app.use(express.json());
 app.use(cookieParser());
 
@@ -38,6 +39,7 @@ app.use('/api/leave', leaveRoutes);
 app.use('/api/upload', uploadDocumentRouter);
 app.use('/api/tastbox', tastBoxRouters);
 app.use('/api/attendance', addAttendance);  // for attendance routes
+app.use('/api/holiday', addHoliday); // for holiday routes
 
 // Start server
 app.listen(PORT, () => {
