@@ -1,7 +1,8 @@
 import express from 'express';
-import Attendance from '../models/attendance.js';
+import Attendance from "../models/attendance.js"
 import Shift from '../models/shiftingData.js';
-import Holiday from '../models/holidayList.js';
+
+
 const addAttendance = express.Router();
 
 
@@ -137,63 +138,88 @@ addAttendance.get("/getShift", async (req, res) => {
   //     res.status(500).json({ message: "Server error", error: error.message });
   //   }
   // });
+
+
+  /// only for testing 
+  // addAttendance.post("/addAttendance", async (req, res) => {
+    
+  //   console.log(req.body);
+
+  //   try {
+  //     const {
+  //       emp_id,
+  //       date,
+  //       time_in,
+  //       time_out,
+  //       total_work_duration,
+  //       late_by,
+  //       status,
+  //       leaveType,
+  //       earlyStatus,
+  //       lateStatus,
+  //       halfDayStatus,
+  //       halfDayPeriod,
+  //       shortLeaveStatus,
+  //       shortLeavePeriod
+  //     } = req.body;
+
+
+  //     // Validate required fields
+  //     if (!emp_id || !date || !status) {
+  //       return res.status(400).json({ message: "emp_id, date, and status are required" });
+  //     }
+  
+  //     // Prepare the attendance object with the exact data received from the frontend
+  //     const newAttendance = new Attendance({
+  //       emp_id,
+  //       date,
+  //       time_in: time_in || "N/A",
+  //       time_out: time_out || "N/A",
+  //       total_work_duration: total_work_duration || "N/A",
+  //       late_by: late_by || "N/A",
+  //       early_out: early_out || "N/A",
+  //       status,
+  //       leaveType,
+  //       earlyStatus,
+  //       lateStatus,
+  //       halfDayStatus,
+  //       halfDayPeriod,
+  //       shortLeaveStatus,
+  //       shortLeavePeriod
+  //     });
+  
+  //     await newAttendance.save();
+  
+  //     res.status(201).json({ message: "Attendance saved successfully", data: newAttendance });
+  //   } catch (error) {
+  //     console.error("Error saving attendance:", error);
+  //     res.status(500).json({ message: "Server error", error: error.message });
+  //   }
+
+  // });
+  
   addAttendance.post("/addAttendance", async (req, res) => {
-    console.log(req.body);
-
-    // try {
-      // const {
-      //   emp_id,
-      //   date,
-      //   time_in,
-      //   time_out,
-      //   total_work_duration,
-      //   late_by,
-      //   early_out,
-      //   status,
-      //   leaveType,
-      //   earlyStatus,
-      //   lateStatus,
-      //   halfDayStatus,
-      //   halfDayPeriod,
-      //   shortLeaveStatus,
-      //   shortLeavePeriod
-      // } = req.body;
-
-
-    //   // Validate required fields
-    //   if (!emp_id || !date || !status) {
-    //     return res.status(400).json({ message: "emp_id, date, and status are required" });
-    //   }
+    try {
+      const attendances = req.body.attendances;  // Expecting an array
+      
+      if (!attendances || attendances.length === 0) {
+        return res.status(400).json({ message: "Attendance data is required" });
+      }
   
-    //   // Prepare the attendance object with the exact data received from the frontend
-    //   const newAttendance = new Attendance({
-    //     emp_id,
-    //     date,
-    //     time_in: time_in || "N/A",
-    //     time_out: time_out || "N/A",
-    //     total_work_duration: total_work_duration || "N/A",
-    //     late_by: late_by || "N/A",
-    //     early_out: early_out || "N/A",
-    //     status,
-    //     leaveType,
-    //     earlyStatus,
-    //     lateStatus,
-    //     halfDayStatus,
-    //     halfDayPeriod,
-    //     shortLeaveStatus,
-    //     shortLeavePeriod
-    //   });
+      // Save each attendance record
+      const savedAttendances = [];
+      for (const attendance of attendances) {
+        const newAttendance = new Attendance(attendance);
+        await newAttendance.save();
+        savedAttendances.push(newAttendance);
+      }
   
-    //   await newAttendance.save();
-  
-    //   res.status(201).json({ message: "Attendance saved successfully", data: newAttendance });
-    // } catch (error) {
-    //   console.error("Error saving attendance:", error);
-    //   res.status(500).json({ message: "Server error", error: error.message });
-    // }
-
+      res.status(201).json({ message: "Attendances saved successfully", data: savedAttendances });
+    } catch (error) {
+      console.error("Error saving attendance:", error.message);
+      res.status(500).json({ message: "Server error", error: error.message });
+    }
   });
-  
   
   
 
@@ -286,54 +312,22 @@ function formatMinutes(minutes) {
 // API to update attendance (Clock Out)
 addAttendance.put("/updateAttendance/:id", async (req, res) => {
   try {
-      const { id } = req.params; // Object ID from URL
-      const { emp_id, time_out } = req.body;
+      const { id } = req.params; // Object ID (not used for searching)
+      const { emp_id, time_out, date } = req.body; // Include date in the request body
 
-      if (!emp_id || !time_out) {
-          return res.status(400).json({ message: "emp_id and time_out are required" });
+      if (!emp_id || !time_out || !date) {
+          return res.status(400).json({ message: "emp_id, time_out, and date are required" });
       }
 
-      // Find existing attendance record
-      const attendance = await Attendance.findOne({ _id: id, emp_id });
+      // Find attendance based on emp_id and date instead of _id
+      const attendance = await Attendance.findOne({ emp_id, date });
 
       if (!attendance) {
-          return res.status(404).json({ message: "Attendance record not found" });
+          return res.status(404).json({ message: "Attendance record not found for the given employee and date" });
       }
 
-      // Find employee shift data
-      const shift = await Shift.findOne({ emp_id });
-
-      if (!shift) {
-          return res.status(404).json({ message: "Shift data not found for employee" });
-      }
-
-      const timeInMinutes = convertToMinutes(attendance.time_in);
-      const timeOutMinutes = convertToMinutes(time_out);
-      const shiftOutMinutes = convertToMinutes(shift.shift_out);
-
-      // Calculate total work duration
-      const total_work_duration = formatMinutes(timeOutMinutes - timeInMinutes);
-
-      // Calculate early out (if time_out is before shift_out)
-      let early_out = "N/A";
-      if (timeOutMinutes < shiftOutMinutes) {
-          early_out = formatMinutes(shiftOutMinutes - timeOutMinutes);
-      }
-
-      // Determine status based on total work duration
-      let status = attendance.status;
-
-      if (timeOutMinutes - timeInMinutes < 240) {
-          status = "Half-Day"; // Less than 4 hours worked
-      }
-
-      // Update the attendance record
+      // Update attendance
       attendance.time_out = time_out;
-      attendance.total_work_duration = total_work_duration;
-      attendance.early_out = early_out;
-      attendance.record_clock_out = true;
-      attendance.status = status;
-
       await attendance.save();
 
       res.status(200).json({ message: "Attendance updated successfully", data: attendance });
