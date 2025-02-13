@@ -9,7 +9,6 @@ import Education from '../models/Education.js';
 import PersonalInformation from '../models/PersonalInformation.js';
 import moment from 'moment';
 import ResignedEmployee from '../models/ResignedEmployee.js';
-import Leave from '../models/Leave.js';
 const addUserRoutes = express.Router();
 
 // Fetch all roles (MongoDB example)
@@ -751,19 +750,6 @@ addUserRoutes.post("/addPersonalInformation", async (req, res) => {
       savedBanking = await newBanking.save();
     }
 
-    // ✅ Save Leave Details open
-
-    const  earned_leave = 7 ;
-    const  casual_leave = 7 ;
-    const sick_leave = 6;
-    const total_leave = earned_leave + casual_leave + sick_leave;
-
-    const newLeave = new Leave({ emp_id, earned_leave, casual_leave, sick_leave, total_leave });
-    await newLeave.save();
-
-    // Save Leave Details colse
-
-
     // ✅ Save Education Details in an array (Fixing your issue)
 // Save Education Details (if provided)
 if (Array.isArray(education) && education.length > 0) {
@@ -1016,3 +1002,4 @@ addUserRoutes.get('/fetch_resigned_employees',async (req, res) => {
 
 
 export default addUserRoutes;
+
