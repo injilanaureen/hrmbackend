@@ -423,6 +423,22 @@ addAttendance.put("/updateAttendance/:id", async (req, res) => {
     }
 });
 
+addAttendance.get("/getAttendance/:emp_id", async (req, res) => {
+  try {
+      const { emp_id } = req.params;
+      const employeeAttendance = await Attendance.find({ emp_id });
+ 
+      if (!employeeAttendance.length) {
+          return res.status(404).json({ message: "No attendance records found for this employee." });
+      }
+ 
+      res.status(200).json(employeeAttendance);
+  } catch (error) {
+      console.error("Error fetching attendance records:", error);
+      res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+ 
   
   
 export default addAttendance;
