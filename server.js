@@ -10,10 +10,21 @@ import uploadDocumentRouter from './routes/uploadDocumentRouter.js';
 import tastBoxRouters from './routes/tastBoxRouters.js';
 import addAttendance from './routes/attendanceRoutes.js';
 import addHoliday from './routes/holidayRouters.js';
+
 const app = express();
 const PORT = 5000;
 
-app.use(cors());
+// Define the allowed origin (Frontend domain)
+const allowedOrigins = ['https://hrms.nikatby.in'];
+
+// CORS Configuration
+app.use(cors({
+  origin: allowedOrigins,  // Allow requests from the specified origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allow specific HTTP methods
+  allowedHeaders: ['Content-Type', 'Authorization'],  // Allow specific headers
+  credentials: true,  // Enable cookies to be sent with requests
+}));
+
 app.use(express.json());
 app.use(cookieParser());
 
